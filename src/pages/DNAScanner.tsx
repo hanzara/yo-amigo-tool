@@ -57,7 +57,7 @@ export default function DNAScanner() {
 
   const loadGenomeHistory = async (repoId: string) => {
     const { data, error } = await supabase
-      .from("genomes")
+      .from("genome_analyses")
       .select("*")
       .eq("repository_id", repoId)
       .order("created_at", { ascending: false });
@@ -75,25 +75,37 @@ export default function DNAScanner() {
   };
 
   const loadGenomeDetails = async (genomeId: string) => {
-    const [modulesRes, functionsRes, depsRes, packagesRes, healthRes, suggestionsRes] = await Promise.all([
-      (supabase as any).from("genome_modules").select("*").eq("genome_id", genomeId),
-      (supabase as any).from("genome_functions").select("*"),
-      (supabase as any).from("genome_dependencies").select("*").eq("genome_id", genomeId),
-      (supabase as any).from("genome_packages").select("*").eq("genome_id", genomeId),
-      (supabase as any).from("genome_health").select("*").eq("genome_id", genomeId).maybeSingle(),
-      (supabase as any).from("genome_suggestions").select("*").eq("repository_id", selectedRepo),
-    ]);
+    const { data: genomeData, error: genomeError } = await supabase
+      .from("genome_analyses")
+      .select("*")
+      .eq("id", genomeId)
+      .maybeSingle();
 
-    const genomeData = scanHistory.find(g => g.id === genomeId);
+    if (genomeError) {
+      console.error("Error loading genome:", genomeError);
+      return;
+    }
+
+    const { data: suggestionsData } = await supabase
+      .from("genome_suggestions")
+      .select("*")
+      .eq("genome_analysis_id", genomeId);
+    
+    // Parse analysis_data which contains the genome structure
+    const analysisData = (genomeData?.analysis_data as any) || {};
     
     setScanResults({
       genome: genomeData,
-      modules: modulesRes.data || [],
-      functions: functionsRes.data || [],
-      dependencies: depsRes.data || [],
-      packages: packagesRes.data || [],
-      health: healthRes.data,
-      suggestions: suggestionsRes.data || [],
+      modules: analysisData.modules || [],
+      functions: analysisData.functions || [],
+      dependencies: analysisData.dependencies || [],
+      packages: analysisData.packages || [],
+      health: {
+        efficiency_score: genomeData?.efficiency_score || 0,
+        security_issues: genomeData?.security_issues || [],
+        performance_metrics: genomeData?.performance_metrics || {}
+      },
+      suggestions: suggestionsData || [],
     });
   };
 
