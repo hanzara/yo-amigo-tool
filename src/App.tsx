@@ -16,6 +16,7 @@ import EvolutionEngine from "./pages/EvolutionEngine";
 import LiveBench from "./pages/LiveBench";
 import SmartMerge from "./pages/SmartMerge";
 import EvolutionCloud from "./pages/EvolutionCloud";
+import EvolutionMarketplace from "./pages/EvolutionMarketplace";
 import LessonView from "./pages/LessonView";
 import LearningLibrary from "./pages/LearningLibrary";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const AppContent = () => {
         <Route path="/software-healing/livebench" element={<LiveBench />} />
         <Route path="/software-healing/smartmerge" element={<SmartMerge />} />
         <Route path="/software-healing/cloud" element={<EvolutionCloud />} />
+        <Route path="/software-healing/marketplace" element={<EvolutionMarketplace />} />
         <Route path="/lesson/:id" element={<LessonView />} />
         <Route path="/learning-library" element={<LearningLibrary />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
